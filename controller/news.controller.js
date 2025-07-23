@@ -48,3 +48,21 @@ exports.deleteNews = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Update a news article
+exports.updateNews = async (req, res) => {
+  try {
+    const { title, link } = req.body;
+    const news = await News.findByPk(req.params.id);
+
+    if (!news) return res.status(404).json({ message: "News not found." });
+
+    if (title) news.title = title;
+    if (link) news.link = link;
+
+    await news.save();
+    res.json(news);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
