@@ -1,16 +1,44 @@
-// controllers/hubspotController.js
-
-const db = require('../model');
+const db = require("../model");
 const Hubspot = db.Hubspot;
 
 // Create new record
 exports.createHubspot = async (req, res) => {
   try {
     const { title, description, link, options } = req.body;
-    const newHubspot = await Hubspot.create({ title, description, link, options });
-    res.status(201).json(newHubspot);
+
+    // Convert options to array, handling string or array input
+    const parsedOptions = Array.isArray(options)
+      ? options.map((opt) => opt.trim()).filter((opt) => opt.length > 0)
+      : typeof options === "string"
+      ? options
+          .replace(/^\[|\]$/g, "") // Remove brackets
+          .split(",")
+          .map((opt) => opt.trim())
+          .filter((opt) => opt.length > 0)
+      : [];
+
+    const newHubspot = await Hubspot.create({
+      title: title || "",
+      description: description || "",
+      link: link || "",
+      options: parsedOptions,
+    });
+    res.status(201).json({
+      success: true,
+      data: {
+        id: newHubspot.id,
+        title: newHubspot.title,
+        description: newHubspot.description,
+        link: newHubspot.link,
+        options: newHubspot.options,
+      },
+      message: "Hubspot created successfully",
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
@@ -18,20 +46,85 @@ exports.createHubspot = async (req, res) => {
 exports.getAllHubspots = async (req, res) => {
   try {
     const hubspots = await Hubspot.findAll();
-    res.json(hubspots);
+    const formattedHubspots = hubspots.map((hubspot) => {
+      let options = hubspot.options;
+      if (
+        typeof options === "string" &&
+        options.startsWith("[") &&
+        options.endsWith("]")
+      ) {
+        try {
+          options = JSON.parse(options); // Parse string to array if needed
+        } catch (e) {
+          options = options
+            .split(",")
+            .map((opt) => opt.replace(/["[\]]/g, "").trim())
+            .filter((opt) => opt.length > 0);
+        }
+      }
+      return {
+        id: hubspot.id,
+        title: hubspot.title || "",
+        description: hubspot.description || "",
+        link: hubspot.link || "",
+        options: Array.isArray(options) ? options : [],
+      };
+    });
+    res.json({
+      success: true,
+      data: formattedHubspots,
+      message: "Hubspots retrieved successfully",
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get all error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
-// Get single record by ID
 exports.getHubspotById = async (req, res) => {
   try {
     const hubspot = await Hubspot.findByPk(req.params.id);
-    if (!hubspot) return res.status(404).json({ error: 'Hubspot not found' });
-    res.json(hubspot);
+    if (!hubspot) {
+      return res.status(404).json({
+        success: false,
+        error: "Hubspot not found",
+      });
+    }
+    let options = hubspot.options;
+    if (
+      typeof options === "string" &&
+      options.startsWith("[") &&
+      options.endsWith("]")
+    ) {
+      try {
+        options = JSON.parse(options);
+      } catch (e) {
+        options = options
+          .split(",")
+          .map((opt) => opt.replace(/["[\]]/g, "").trim())
+          .filter((opt) => opt.length > 0);
+      }
+    }
+    res.json({
+      success: true,
+      data: {
+        id: hubspot.id,
+        title: hubspot.title || "",
+        description: hubspot.description || "",
+        link: hubspot.link || "",
+        options: Array.isArray(options) ? options : [],
+      },
+      message: "Hubspot retrieved successfully",
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get by ID error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
@@ -40,12 +133,45 @@ exports.updateHubspot = async (req, res) => {
   try {
     const { title, description, link, options } = req.body;
     const hubspot = await Hubspot.findByPk(req.params.id);
-    if (!hubspot) return res.status(404).json({ error: 'Hubspot not found' });
+    if (!hubspot) {
+      return res.status(404).json({
+        success: false,
+        error: "Hubspot not found",
+      });
+    }
 
-    await hubspot.update({ title, description, link, options });
-    res.json(hubspot);
+    const parsedOptions = Array.isArray(options)
+      ? options.map((opt) => opt.trim()).filter((opt) => opt.length > 0)
+      : typeof options === "string"
+      ? options
+          .split(",")
+          .map((opt) => opt.trim())
+          .filter((opt) => opt.length > 0)
+      : [];
+
+    await hubspot.update({
+      title: title || hubspot.title,
+      description: description || hubspot.description,
+      link: link || hubspot.link,
+      options: parsedOptions,
+    });
+    res.json({
+      success: true,
+      data: {
+        id: hubspot.id,
+        title: hubspot.title,
+        description: hubspot.description,
+        link: hubspot.link,
+        options: hubspot.options,
+      },
+      message: "Hubspot updated successfully",
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Update error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
@@ -53,11 +179,23 @@ exports.updateHubspot = async (req, res) => {
 exports.deleteHubspot = async (req, res) => {
   try {
     const hubspot = await Hubspot.findByPk(req.params.id);
-    if (!hubspot) return res.status(404).json({ error: 'Hubspot not found' });
+    if (!hubspot) {
+      return res.status(404).json({
+        success: false,
+        error: "Hubspot not found",
+      });
+    }
 
     await hubspot.destroy();
-    res.json({ message: 'Hubspot deleted' });
+    res.json({
+      success: true,
+      message: "Hubspot deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Delete error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };

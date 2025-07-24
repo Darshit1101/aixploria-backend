@@ -6,6 +6,8 @@ exports.createVideo = async (req, res) => {
     const video = await Video.create(req.body);
     res.status(201).json(video);
   } catch (err) {
+    console.log(err);
+    
     res.status(500).json({ message: "Failed to create video", error: err });
   }
 };
