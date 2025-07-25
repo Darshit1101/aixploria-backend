@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
     options: {
       type: DataTypes.JSON,
     },
+    image:{
+      type:DataTypes.STRING
+    }
   });
 
   return Hubspot;

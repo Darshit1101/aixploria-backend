@@ -5,7 +5,10 @@ const Hubspot = db.Hubspot;
 exports.createHubspot = async (req, res) => {
   try {
     const { title, description, link, options } = req.body;
-
+    const image = `${req.file.filename}`;
+    if (!req.file) {
+      res.status(500).json({ message: "Image is required" });
+    }
     // Convert options to array, handling string or array input
     const parsedOptions = Array.isArray(options)
       ? options.map((opt) => opt.trim()).filter((opt) => opt.length > 0)
@@ -22,6 +25,7 @@ exports.createHubspot = async (req, res) => {
       description: description || "",
       link: link || "",
       options: parsedOptions,
+      image,
     });
     res.status(201).json({
       success: true,
@@ -31,6 +35,7 @@ exports.createHubspot = async (req, res) => {
         description: newHubspot.description,
         link: newHubspot.link,
         options: newHubspot.options,
+        image: newHubspot.image,
       },
       message: "Hubspot created successfully",
     });
@@ -68,6 +73,7 @@ exports.getAllHubspots = async (req, res) => {
         description: hubspot.description || "",
         link: hubspot.link || "",
         options: Array.isArray(options) ? options : [],
+        image: hubspot.image,
       };
     });
     res.json({
@@ -144,17 +150,22 @@ exports.updateHubspot = async (req, res) => {
       ? options.map((opt) => opt.trim()).filter((opt) => opt.length > 0)
       : typeof options === "string"
       ? options
+          .replace(/^\[|\]$/g, "") // Remove brackets
           .split(",")
           .map((opt) => opt.trim())
           .filter((opt) => opt.length > 0)
       : [];
+
+    const image = req.file ? `${req.file.filename}` : hubspot.image;
 
     await hubspot.update({
       title: title || hubspot.title,
       description: description || hubspot.description,
       link: link || hubspot.link,
       options: parsedOptions,
+      image,
     });
+
     res.json({
       success: true,
       data: {
@@ -163,6 +174,7 @@ exports.updateHubspot = async (req, res) => {
         description: hubspot.description,
         link: hubspot.link,
         options: hubspot.options,
+        image: hubspot.image,
       },
       message: "Hubspot updated successfully",
     });
