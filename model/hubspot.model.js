@@ -1,7 +1,7 @@
 // models/Hubspot.js
 
 module.exports = (sequelize, DataTypes) => {
-  const Hubspot = sequelize.define('Hubspot', {
+  const Hubspot = sequelize.define("Hubspot", {
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -15,9 +15,9 @@ module.exports = (sequelize, DataTypes) => {
     options: {
       type: DataTypes.JSON,
     },
-    image:{
-      type:DataTypes.STRING
-    }
+    image: {
+      type: DataTypes.STRING,
+    },
   });
 
   return Hubspot;

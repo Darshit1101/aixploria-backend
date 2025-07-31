@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve uploaded images
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(express.static(path.join(__dirname, "uploads")));
 
 // API routes
 app.use("/api/auth", authRoutes);
@@ -48,14 +48,16 @@ db.sequelize
     const adminUsername = process.env.ADMIN_USERNAME || "admin";
     const adminPassword = process.env.ADMIN_PASSWORD || "secure@123";
 
-    const adminExists = await db.User.findOne({ where: { username: adminUsername } });
+    const adminExists = await db.User.findOne({
+      where: { username: adminUsername },
+    });
 
     if (!adminExists) {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       await db.User.create({
         username: adminUsername,
         password: hashedPassword,
-        role: "admin"
+        role: "admin",
       });
       console.log("✅ Admin user created");
     } else {
