@@ -3,15 +3,15 @@ const router = express.Router();
 const gptCategoryController = require('../controller/gptcategory.controller');
 
 // Create category
-router.post('/', gptCategoryController.createCategory);
+router.post('/addgptcategory', gptCategoryController.createCategory);
 
 // Get all categories
-router.get('/', gptCategoryController.getAllCategories);
+router.get('/getgptcategories', gptCategoryController.getAllCategories);
 
 // Update category
-router.put('/:id', gptCategoryController.updateCategory);
+router.put('/updategptcategory/:id', gptCategoryController.updateCategory);
 
 // Delete category
-router.delete('/:id', gptCategoryController.deleteCategory);
+router.delete('/deletegptcategory/:id', gptCategoryController.deleteCategory);
 
 module.exports = router;

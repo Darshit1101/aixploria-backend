@@ -3,15 +3,15 @@ const router = express.Router();
 const controller = require('../controller/gpt.controller');
 
 // POST /api/gpts
-router.post('/', controller.createGPT);
+router.post('/addgpt', controller.createGPT);
 
 // GET /api/gpts
-router.get('/', controller.getAllGPTs);
+router.get('/getallgpts', controller.getAllGPTs);
 
 // PUT /api/gpts/:id
-router.put('/:id', controller.updateGPT);
+router.put('/updategpt/:id', controller.updateGPT);
 
 // DELETE /api/gpts/:id
-router.delete('/:id', controller.deleteGPT);
+router.delete('/deletegpt/:id', controller.deleteGPT);
 
 module.exports = router;

@@ -25,16 +25,16 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
 
 // API routes
-app.use("/api/auth", authRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/cards", cardRoutes);
-app.use("/api/videos", videoRoutes);
-app.use("/api/video-categories", videoCategoryRoutes);
-app.use("/api/news", newsRoutes);
-app.use("/api/hubspot", hubspotRoutes);
-app.use("/api/gpt-categories", gptCategoryRoutes);
-app.use("/api/gpt", gptRoutes);
-app.use("/api/blogs", blogRoutes);
+app.use("/auth", authRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/cards", cardRoutes);
+app.use("/videos", videoRoutes);
+app.use("/video-categories", videoCategoryRoutes);
+app.use("/news", newsRoutes);
+app.use("/hubspot", hubspotRoutes);
+app.use("/gpt-categories", gptCategoryRoutes);
+app.use("/gpt", gptRoutes);
+app.use("/blogs", blogRoutes);
 
 app.get("/", (req, res) => {
   res.send("✅ Server is running...");

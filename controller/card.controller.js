@@ -24,7 +24,7 @@ exports.createCard = async (req, res) => {
 
     // Determine image path: use uploaded file if available, otherwise use image
     if (req.file) {
-      imagePath = `/uploads/${req.file.filename}`;
+      imagePath = `${req.file.filename}`;
     } else if (image) {
       // Use the provided image as the image path (assuming it's a valid URL)
       imagePath = image;
@@ -81,7 +81,7 @@ exports.updateCard = async (req, res) => {
     if (!card) return res.status(404).json({ message: "Card not found" });
 
     if (req.file) {
-      req.body.image = `/uploads/${req.file.filename}`;
+      req.body.image = `${req.file.filename}`;
     } else if (req.body.image) {
       // Update image with image if no file is uploaded
       req.body.image = req.body.image;

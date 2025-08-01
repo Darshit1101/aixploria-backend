@@ -19,6 +19,20 @@ exports.getBlogs = async (req, res) => {
   }
 };
 
+exports.getBlogById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const blog = await Blog.findByPk(id);
+    if (blog) {
+      res.status(200).json(blog);
+    } else {
+      res.status(404).json({ error: "Blog not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.updateBlog = async (req, res) => {
   try {
     const { id } = req.params;
